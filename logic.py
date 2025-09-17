@@ -19,7 +19,12 @@ class DatabaseManager:
                 user_name TEXT
             )
         ''')
-            conn.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS bonus_point INTEGER DEFAULT 0")
+            cursor = conn.cursor()
+            cursor.execute("PRAGMA table_info(users)")
+            columns = [col[1] for col in cursor.fetchall()]  # sütun isimleri
+
+            if "bonus_point" not in columns:
+                cursor.execute("ALTER TABLE users ADD COLUMN bonus_point INTEGER DEFAULT 0")
 
             conn.execute('''
             CREATE TABLE IF NOT EXISTS prizes (
