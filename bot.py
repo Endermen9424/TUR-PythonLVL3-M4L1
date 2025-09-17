@@ -1,8 +1,11 @@
 import discord
 from discord.ext import commands, tasks
-from logic import DatabaseManager, hide_img
+from logic import DatabaseManager, hide_img, create_collage
 from config import TOKEN, DATABASE
 import os
+import cv2
+import numpy as np
+from math import sqrt, ceil, floor
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -86,5 +89,18 @@ async def on_interaction(interaction):
                 await interaction.response.send_message(content="Bu resme zaten sahipsiniz!", ephemeral=True)
         else:
             await interaction.response.send_message(content="Maalesef, birisi bu resmi çoktan aldı...", ephemeral=True)
+
+@bot.command()
+async def show_img(ctx):
+    if ctx.author.id in manager.get_users():
+        info = manager.get_winners_img("user_id")
+        prizes = [x[0] for x in info]
+        image_paths = os.listdir('img')
+        image_paths = [f'img/{x}' if x in prizes else f'hidden_img/{x}' for x in image_paths]
+        collage = create_collage(image_paths)
+
+        await ctx.send(file=discord.File(cv2.imencode('.png', collage)[1].tobytes(), filename='collage.png'), text="İşte kazandığınız resimler ve gizlenenler:")
+
+        
 
 bot.run(TOKEN)
