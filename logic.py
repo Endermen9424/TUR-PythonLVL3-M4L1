@@ -19,6 +19,7 @@ class DatabaseManager:
                 user_name TEXT
             )
         ''')
+            conn.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS bonus_point INTEGER DEFAULT 0")
 
             conn.execute('''
             CREATE TABLE IF NOT EXISTS prizes (
@@ -126,6 +127,12 @@ class DatabaseManager:
     winners.prize_id = prizes.prize_id
     WHERE user_id = ?''', (user_id, ))
             return cur.fetchall()
+        
+    def add_bonus_point(self,user_id, points):
+        conn = sqlite3.connect(self.database)
+        with conn:
+            conn.execute('''UPDATE users SET bonus_point = bonus_point + ? WHERE user_id = ?''', (points, user_id))
+            conn.commit()
 
 def hide_img(img_name):
     image = cv2.imread(f'img/{img_name}')

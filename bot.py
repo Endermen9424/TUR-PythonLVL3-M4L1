@@ -51,6 +51,7 @@ async def on_interaction(interaction):
         custom_id = interaction.data['custom_id']
         user_id = interaction.user.id
         img = manager.get_prize_img(custom_id)
+        manager.add_bonus_point(user_id, 10)  # Kullanıcıya 10 bonus puan ekle
         if manager.add_winner(user_id, custom_id):
             with open(f'img/{img}', 'rb') as photo:
                 file = discord.File(photo)
